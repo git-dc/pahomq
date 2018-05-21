@@ -7,7 +7,7 @@ from influxdb import InfluxDBClient
 
 def on_connect(client, userdata, flags, rc):
     print("connected with result code " + str(rc))
-    client.subscribe("vaponic/#")
+    client.subscribe("vaponic/tele/SENSOR")
 
     
 def on_message(client, userdata, msg):
@@ -47,7 +47,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 connOK=False
-while(!connOK):
+while(connOK == False):
     try:
         client.connect("localhost",1883,60)
         connOK=True
