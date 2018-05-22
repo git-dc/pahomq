@@ -27,9 +27,8 @@ def convert_to_influx(message):
 
             #the timestamp contains some ":", so it gets split into multiple entries under key "Time" in msgDec; if length of the list is more than 1 after the header is popped, it should be the timestamp entry
             
-            item=[stampGen(':'.join(item))]#[:-2]]+"000000000"]
-
-            # puts in list to conform with the format of the rest of the entries
+            item=[stampGen(':'.join(item))+datetime.timedelta(hours=-4)]
+            # puts in list to conform with format; timedelta of -4 to account for timezone - influx expects utc
 
         msgDict[header] = item[0] # put the header:val, where val is item[0], key-value pairs into msgDict
     return msgDict
@@ -58,7 +57,7 @@ def on_message(client, userdata, msg):
             print("Could not convert " + msgs[key] + " to a float value, skipping "+key+":"+msgs[key])
             isfloatValue=False
         if isfloatValue:
-            print("Received "+key+":"+str(val)+" "+str(msgs["Time"])+" at "+str(receiveTime))
+            print("Received "+key+":"+str(val)+" (utc) "+str(msgs["Time"])+" at (utc) "+str(receiveTime))
             json_body = [
                 {
                     "measurement":key,
@@ -66,7 +65,7 @@ def on_message(client, userdata, msg):
                     #"time":receiveTime,
                     "fields":
                     {
-                        "value":msgs[key]
+                        "value":val
                     }
                 }
             ]
